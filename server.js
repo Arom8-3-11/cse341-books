@@ -13,7 +13,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`Server listening at http://127.0.0.1:${PORT}`);
-      console.log(`Practice trails: http://127.0.0.1:${PORT}/trails`);
+      console.log(`Books API: http://127.0.0.1:${PORT}/books`);
     });
   } catch (error) {
     console.error('Database connection failed:', error.message);
