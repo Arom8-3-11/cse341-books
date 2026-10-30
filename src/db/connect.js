@@ -8,9 +8,14 @@ const connectToDb = async () => {
     throw new Error('MONGODB_URI is required.');
   }
 
+  const databaseName = process.env.MONGODB_DB_NAME;
+  if (!databaseName) {
+    throw new Error('MONGODB_DB_NAME is required.');
+  }
+
   const client = new MongoClient(connectionString);
   await client.connect();
-  database = client.db(process.env.MONGODB_DB_NAME || 'practice');
+  database = client.db(databaseName);
   return database;
 };
 
