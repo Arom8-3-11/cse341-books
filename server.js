@@ -12,7 +12,7 @@ const startServer = async () => {
     await connectToDb();
 
     app.listen(PORT, () => {
-      console.log(`Server listening at http://127.0.0.1:${PORT}`);
+      // console.log(`Server listening at http://127.0.0.1:${PORT}`);
       console.log(`Books API: http://127.0.0.1:${PORT}/books`);
     });
   } catch (error) {

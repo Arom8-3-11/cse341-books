@@ -1,0 +1,82 @@
+# Week 01 Reflection
+
+1. Include a link to one of your Pull Requests (PRs) at GitHub.
+   (It should be merged and closed at this point.)
+
+GitHub Pull Request Link:
+https://github.com/Arom8-3-11/cse341-books/pull/7
+
+2. Include a link to one of your Issues at GitHub.
+   (It should be closed at this point.)
+
+GitHub Issue Link:
+https://github.com/Arom8-3-11/cse341-books/issues/4
+
+3. Which issue took more or less time than expected? Why?
+
+Answer:
+Issue #4, deploying and testing the application, took more time than I
+expected. After I committed the branches and merged them, the deployment
+on Render was not working. Troubleshooting MongoDB Atlas network access
+took longer than expected because Render needed permission to connect
+from its outbound IP ranges. There was also a startup configuration issue
+to fix before the deployed service worked.
+
+4. Include a link to your walk-through video.
+   It must include your name, show your web service working at Render,
+   explain your Get Single Book controller, and discuss status codes.
+
+Video link:
+[TO COMPLETE: Paste the accessible walk-through video URL here before submitting.]
+
+5.a. Include a GitHub link to a file that shows how your app uses sensitive
+     data, such as the MongoDB connection string.
+
+GitHub link:
+https://github.com/Arom8-3-11/cse341-books/blob/main/src/db/connect.js
+
+5.b. How did you store sensitive data? Why is that approach important?
+
+Answer:
+I stored the MongoDB connection string in an environment variable,
+MONGODB_URI. Locally, the development command loads it from my .env file.
+On Render, it is configured in the service's environment settings. The
+database connection code reads it through process.env instead of putting
+the connection string directly in the source code. 
+
+My .gitignore excludes the real .env file. The .env.example file contains
+only placeholders and configuration examples, not my credentials. This
+keeps sensitive connection information out of GitHub and lets me use
+different configuration locally and on Render without changing the code.
+this will also prevent the information from being leaked into any part of
+the rest of the code.
+
+6.a. Include a GitHub link to a file that shows one other implementation
+     decision you made.
+
+GitHub link:
+https://github.com/Arom8-3-11/cse341-books/blob/main/src/controllers/books.js
+
+6.b. What decision does this file show, and why did you make that choice?
+
+Answer:
+I used distinct 200, 404, and 500 responses. When testing an application,
+it can be hard to figure out what is causing an issue. Different status
+codes help distinguish a successful request from a missing book or an
+unexpected server failure.
+
+The single-book controller returns 200 with the book when it is found.
+If the requested id does not match a book, it returns 404 with the JSON
+message "Book not found". If an unexpected error occurs, it logs the
+diagnostic on the server and returns 500 with "Internal server error".
+These are JSON responses, not redirects to an error page. The generic
+500 message avoids exposing internal database details to the client,
+while the server log helps with debugging.
+
+7. What is one specific habit or process you will work on for next week?
+
+Answer:
+Next week, I will check deployment configuration more frequently as I
+update the application. After each relevant merge and deployment, I will
+verify that the deployment succeeds and test the hosted endpoints,
+instead of waiting until the end to discover configuration problems.
