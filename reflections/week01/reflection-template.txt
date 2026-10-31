@@ -27,7 +27,11 @@ to fix before the deployed service worked.
    explain your Get Single Book controller, and discuss status codes.
 
 Video link:
-[TO COMPLETE: Paste the accessible walk-through video URL here before submitting.]
+https://youtu.be/8NVCXEnxLwY 
+
+possible usable id's: b1, b2, b3
+   any other request after https://cse341-books-5ynb.onrender.com/books 
+   besides those three id's will result in a status of 404
 
 5.a. Include a GitHub link to a file that shows how your app uses sensitive
      data, such as the MongoDB connection string.
