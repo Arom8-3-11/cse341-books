@@ -1,0 +1,145 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Books API",
+    "version": "1.0.0",
+    "description": "A simple API for working with books"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current server"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "required": [
+          "id",
+          "author",
+          "title",
+          "publicationDate"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "b1"
+          },
+          "author": {
+            "type": "string",
+            "example": "Maya Rivera"
+          },
+          "title": {
+            "type": "string",
+            "example": "Patterns of Light"
+          },
+          "publicationDate": {
+            "type": "string",
+            "format": "date",
+            "example": "2021-08-17"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "summary": "Get all books",
+        "tags": [
+          "Books"
+        ],
+        "responses": {
+          "200": {
+            "description": "Books returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Book"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve books",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/books/{id}": {
+      "get": {
+        "summary": "Get one book by id",
+        "tags": [
+          "Books"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "The custom book id, such as b1",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Book returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Book not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unable to retrieve book",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
