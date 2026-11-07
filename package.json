@@ -20,6 +20,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "swagger": "node swagger.js",
+    "migrate:week02": "node --env-file-if-exists=.env scripts/migrate-week02.js",
     "test": "node --env-file-if-exists=.env --test"
   },
   "dependencies": {

@@ -34,6 +34,36 @@ biographical information.
 {"id":"a3","name":"Ellis Chen","birthYear":1985}
 ```
 
-The existing books still use author names until the book feature and its
-staged migration are deployed. Do not remove those names before the new book
-API is serving the migrated references.
+## Migrate existing books
+
+Back up the `books` and `authors` collections outside the repository before
+making changes. The migration is intended for this small coursework dataset;
+it requires a transaction-capable MongoDB deployment. It validates every
+book and author, rejects duplicate ids and ambiguous or conflicting author
+matches, and leaves unrelated document fields intact. It matches legacy
+`books.author` values to author names exactly, including case. Pause other
+author and book writes while running each migration phase.
+
+With the author API deployed and the three authors created, inspect the
+proposed changes, then add references while retaining the legacy author names:
+
+```powershell
+npm run migrate:week02 -- --add-author-ids
+npm run migrate:week02 -- --add-author-ids --apply
+```
+
+The first command is read-only. The second applies all changes in a MongoDB
+transaction. Both commands can be repeated safely. If validation fails, fix
+the data rather than guessing a match.
+
+Deploy the book API only after the additive migration succeeds. Verify the
+new `/books` responses and both sets of routes in deployed Swagger. Once the
+new API is serving the references, inspect and remove the legacy names:
+
+```powershell
+npm run migrate:week02 -- --remove-author-names
+npm run migrate:week02 -- --remove-author-names --apply
+```
+
+The cleanup also validates all references and is safe to repeat. Do not run
+it while the old Week 01 book API is still serving traffic.

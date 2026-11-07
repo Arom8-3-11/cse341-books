@@ -1,7 +1,10 @@
 import express from 'express';
 import {
+  createBookHandler,
+  deleteBookHandler,
   getBookByIdHandler,
-  getBooksHandler
+  getBooksHandler,
+  updateBookHandler
 } from './controllers/books.js';
 import {
   createAuthorHandler,
@@ -30,11 +33,7 @@ const router = express.Router();
  *               items:
  *                 $ref: '#/components/schemas/Book'
  *       500:
- *         description: Unable to retrieve books
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         $ref: '#/components/responses/InternalError'
  */
 router.get('/books', getBooksHandler);
 
@@ -46,12 +45,7 @@ router.get('/books', getBooksHandler);
  *     tags:
  *       - Books
  *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: The custom book id, such as b1
- *         schema:
- *           type: string
+ *       - $ref: '#/components/parameters/BookId'
  *     responses:
  *       200:
  *         description: Book returned successfully
@@ -60,19 +54,101 @@ router.get('/books', getBooksHandler);
  *             schema:
  *               $ref: '#/components/schemas/Book'
  *       404:
- *         description: Book not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         $ref: '#/components/responses/BookNotFound'
  *       500:
- *         description: Unable to retrieve book
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *         $ref: '#/components/responses/InternalError'
  */
 router.get('/books/:id', getBookByIdHandler);
+
+/**
+ * @openapi
+ * /books:
+ *   post:
+ *     summary: Create a book for an existing author
+ *     tags:
+ *       - Books
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BookCreate'
+ *           example:
+ *             id: b4
+ *             authorId: a1
+ *             title: Example Book Title
+ *             publicationDate: '2026-01-15'
+ *     responses:
+ *       201:
+ *         description: Book created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         $ref: '#/components/responses/BookCreateBadRequest'
+ *       413:
+ *         $ref: '#/components/responses/BodyTooLarge'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
+ */
+router.post('/books', createBookHandler);
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   put:
+ *     summary: Update a book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - $ref: '#/components/parameters/BookId'
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/BookUpdate'
+ *           example:
+ *             authorId: a2
+ *             title: Updated Book Title
+ *             publicationDate: '2026-02-20'
+ *     responses:
+ *       200:
+ *         description: Book updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         $ref: '#/components/responses/BookUpdateBadRequest'
+ *       404:
+ *         $ref: '#/components/responses/BookNotFound'
+ *       413:
+ *         $ref: '#/components/responses/BodyTooLarge'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
+ */
+router.put('/books/:id', updateBookHandler);
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   delete:
+ *     summary: Delete a book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - $ref: '#/components/parameters/BookId'
+ *     responses:
+ *       204:
+ *         description: Book deleted; no response body
+ *       404:
+ *         $ref: '#/components/responses/BookNotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalError'
+ */
+router.delete('/books/:id', deleteBookHandler);
 
 /**
  * @openapi
