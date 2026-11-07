@@ -1,6 +1,44 @@
 import { writeFileSync } from 'node:fs';
 import swaggerJsdoc from 'swagger-jsdoc';
 
+const authorProperties = {
+  id: {
+    type: 'string',
+    pattern: '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$',
+    example: 'a1'
+  },
+  name: {
+    type: 'string',
+    minLength: 1,
+    maxLength: 200,
+    description: 'Trimmed author name.',
+    example: 'Maya Rivera'
+  },
+  birthYear: {
+    type: 'integer',
+    minimum: 1,
+    maximum: 2100,
+    example: 1980
+  }
+};
+
+const errorResponse = (description, examples) => {
+  return {
+    description,
+    content: {
+      'application/json': {
+        schema: { $ref: '#/components/schemas/Error' },
+        examples
+      }
+    }
+  };
+};
+
+const invalidBodyExamples = {
+  invalidBody: { value: { message: 'Invalid request body' } },
+  invalidJson: { value: { message: 'Invalid JSON' } }
+};
+
 // Describe the API itself and tell swagger-jsdoc where to find route docs.
 const options = {
   definition: {
@@ -51,7 +89,53 @@ const options = {
               example: 'Internal server error'
             }
           }
+        },
+        Author: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['id', 'name', 'birthYear'],
+          properties: authorProperties
+        },
+        AuthorCreate: {
+          $ref: '#/components/schemas/Author'
+        },
+        AuthorUpdate: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['name', 'birthYear'],
+          properties: {
+            name: authorProperties.name,
+            birthYear: authorProperties.birthYear
+          }
         }
+      },
+      parameters: {
+        AuthorId: {
+          in: 'path',
+          name: 'id',
+          required: true,
+          description: 'The custom author id, such as a1.',
+          schema: { type: 'string' }
+        }
+      },
+      responses: {
+        InvalidBody: errorResponse('Invalid request body or malformed JSON.', invalidBodyExamples),
+        AuthorCreateBadRequest: errorResponse('Invalid body, malformed JSON, or duplicate author id.', {
+          ...invalidBodyExamples,
+          duplicateId: { value: { message: 'Author id already exists' } }
+        }),
+        AuthorNotFound: errorResponse('Author not found.', {
+          notFound: { value: { message: 'Author not found' } }
+        }),
+        AuthorHasBooks: errorResponse('Author is still referenced by one or more books.', {
+          hasBooks: { value: { message: 'Author has books' } }
+        }),
+        BodyTooLarge: errorResponse('JSON request body exceeds 16 KB.', {
+          tooLarge: { value: { message: 'Request body too large' } }
+        }),
+        InternalError: errorResponse('Unexpected server or database error.', {
+          internalError: { value: { message: 'Internal server error' } }
+        })
       }
     }
   },

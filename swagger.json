@@ -52,6 +52,191 @@
             "example": "Internal server error"
           }
         }
+      },
+      "Author": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "birthYear"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$",
+            "example": "a1"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Trimmed author name.",
+            "example": "Maya Rivera"
+          },
+          "birthYear": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2100,
+            "example": 1980
+          }
+        }
+      },
+      "AuthorCreate": {
+        "$ref": "#/components/schemas/Author"
+      },
+      "AuthorUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "birthYear"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Trimmed author name.",
+            "example": "Maya Rivera"
+          },
+          "birthYear": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2100,
+            "example": 1980
+          }
+        }
+      }
+    },
+    "parameters": {
+      "AuthorId": {
+        "in": "path",
+        "name": "id",
+        "required": true,
+        "description": "The custom author id, such as a1.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "InvalidBody": {
+        "description": "Invalid request body or malformed JSON.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "invalidBody": {
+                "value": {
+                  "message": "Invalid request body"
+                }
+              },
+              "invalidJson": {
+                "value": {
+                  "message": "Invalid JSON"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthorCreateBadRequest": {
+        "description": "Invalid body, malformed JSON, or duplicate author id.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "invalidBody": {
+                "value": {
+                  "message": "Invalid request body"
+                }
+              },
+              "invalidJson": {
+                "value": {
+                  "message": "Invalid JSON"
+                }
+              },
+              "duplicateId": {
+                "value": {
+                  "message": "Author id already exists"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthorNotFound": {
+        "description": "Author not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "notFound": {
+                "value": {
+                  "message": "Author not found"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthorHasBooks": {
+        "description": "Author is still referenced by one or more books.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "hasBooks": {
+                "value": {
+                  "message": "Author has books"
+                }
+              }
+            }
+          }
+        }
+      },
+      "BodyTooLarge": {
+        "description": "JSON request body exceeds 16 KB.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "tooLarge": {
+                "value": {
+                  "message": "Request body too large"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Unexpected server or database error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "internalError": {
+                "value": {
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -136,6 +321,179 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/authors": {
+      "get": {
+        "summary": "Get all authors",
+        "tags": [
+          "Authors"
+        ],
+        "responses": {
+          "200": {
+            "description": "Authors returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Author"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an author",
+        "tags": [
+          "Authors"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorCreate"
+              },
+              "example": {
+                "id": "a4",
+                "name": "Example Author",
+                "birthYear": 1980
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Author created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AuthorCreateBadRequest"
+          },
+          "413": {
+            "$ref": "#/components/responses/BodyTooLarge"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      }
+    },
+    "/authors/{id}": {
+      "get": {
+        "summary": "Get an author by custom id",
+        "tags": [
+          "Authors"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Author returned successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthorNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an author",
+        "tags": [
+          "Authors"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthorUpdate"
+              },
+              "example": {
+                "name": "Updated Author",
+                "birthYear": 1981
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Author updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidBody"
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthorNotFound"
+          },
+          "413": {
+            "$ref": "#/components/responses/BodyTooLarge"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an author who has no books",
+        "tags": [
+          "Authors"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AuthorId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Author deleted; no response body"
+          },
+          "404": {
+            "$ref": "#/components/responses/AuthorNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AuthorHasBooks"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
           }
         }
       }

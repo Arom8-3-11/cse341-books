@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 
+let client;
 let database;
 
 const connectToDb = async () => {
@@ -13,10 +14,20 @@ const connectToDb = async () => {
     throw new Error('MONGODB_DB_NAME is required.');
   }
 
-  const client = new MongoClient(connectionString);
-  await client.connect();
-  database = client.db(databaseName);
-  return database;
+  const newClient = new MongoClient(connectionString);
+
+  try {
+    await newClient.connect();
+    const newDatabase = newClient.db(databaseName);
+    await newDatabase.collection('authors').createIndex({ id: 1 }, { unique: true });
+    await newDatabase.collection('books').createIndex({ authorId: 1 });
+    client = newClient;
+    database = newDatabase;
+    return database;
+  } catch (error) {
+    await newClient.close();
+    throw error;
+  }
 };
 
 const getDb = () => {
@@ -26,4 +37,19 @@ const getDb = () => {
   return database;
 };
 
-export { connectToDb, getDb };
+const getClient = () => {
+  if (!client) {
+    throw new Error('Database not initialized. Call connectToDb first.');
+  }
+  return client;
+};
+
+const closeDb = async () => {
+  if (client) {
+    await client.close();
+    client = undefined;
+    database = undefined;
+  }
+};
+
+export { closeDb, connectToDb, getClient, getDb };
