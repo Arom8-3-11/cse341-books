@@ -21,6 +21,7 @@ const connectToDb = async () => {
     const newDatabase = newClient.db(databaseName);
     await newDatabase.collection('authors').createIndex({ id: 1 }, { unique: true });
     await newDatabase.collection('books').createIndex({ authorId: 1 });
+    await newDatabase.collection('books').createIndex({ id: 1 }, { unique: true });
     client = newClient;
     database = newDatabase;
     return database;

@@ -241,12 +241,13 @@ The review identified the following issues and the Version 2 decisions:
   internal relationship bookkeeping are never returned.
 - Request bodies must be JSON objects with exactly the fields specified for
   the operation. Reject missing, extra, or incorrectly typed fields. Trim
-  `name` and `title`, then require 1-200 characters. A `birthYear` must be an
+  `name` and `title`, then require 1-200 Unicode code points. A `birthYear` must be an
   integer from 1 through 2100. A `publicationDate` must be a real calendar date
   in `YYYY-MM-DD` form with a year from 0001 through 9999.
 - Invalid bodies return `400` and `{"message":"Invalid request body"}`.
   Malformed JSON returns `400` and `{"message":"Invalid JSON"}`. JSON bodies
-  larger than 16 KB return `413` and `{"message":"Request body too large"}`.
+  larger than 16 KiB (16,384 bytes) return `413` and
+  `{"message":"Request body too large"}`.
 - Unexpected server or database errors are logged on the server and return
   `500` and `{"message":"Internal server error"}`; never expose raw errors.
 - List responses are arrays, including `[]` for an empty collection, with no
@@ -358,7 +359,8 @@ returns `{"message":"Author not found"}`. `409` returns
    existing fictional book authors. The seed birth years are illustrative,
    not verified biographical facts: `a1` Maya Rivera (1980), `a2` Jordan Lee
    (1975), and `a3` Ellis Chen (1985).
-2. Inspect existing data and back it up before migration. Match each legacy
+2. Inspect existing data and back it up before migration. Pause other
+   author/book writes while running each migration phase. Match each legacy
    `books.author` name to exactly one author's `name`; stop rather than guess
    if a name is missing, ambiguous, or conflicts with an existing
    `authorId`. Add `authorId` first while retaining `author`, so the Week 01

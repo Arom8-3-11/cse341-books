@@ -22,6 +22,33 @@ const authorProperties = {
   }
 };
 
+const bookProperties = {
+  id: {
+    type: 'string',
+    pattern: '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$',
+    example: 'b1'
+  },
+  authorId: {
+    type: 'string',
+    pattern: '^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$',
+    description: 'Custom id of an existing author.',
+    example: 'a1'
+  },
+  title: {
+    type: 'string',
+    minLength: 1,
+    maxLength: 200,
+    description: 'Trimmed book title.',
+    example: 'Patterns of Light'
+  },
+  publicationDate: {
+    type: 'string',
+    format: 'date',
+    description: 'A real calendar date in YYYY-MM-DD format.',
+    example: '2021-08-17'
+  }
+};
+
 const errorResponse = (description, examples) => {
   return {
     description,
@@ -45,8 +72,8 @@ const options = {
     openapi: '3.0.0',
     info: {
       title: 'Books API',
-      version: '1.0.0',
-      description: 'A simple API for working with books'
+      version: '2.0.0',
+      description: 'An API for working with books and their authors.'
     },
     servers: [
       {
@@ -59,25 +86,21 @@ const options = {
         // Reusable response shapes keep the generated route documentation concise.
         Book: {
           type: 'object',
-          required: ['id', 'author', 'title', 'publicationDate'],
+          additionalProperties: false,
+          required: ['id', 'authorId', 'title', 'publicationDate'],
+          properties: bookProperties
+        },
+        BookCreate: {
+          $ref: '#/components/schemas/Book'
+        },
+        BookUpdate: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['authorId', 'title', 'publicationDate'],
           properties: {
-            id: {
-              type: 'string',
-              example: 'b1'
-            },
-            author: {
-              type: 'string',
-              example: 'Maya Rivera'
-            },
-            title: {
-              type: 'string',
-              example: 'Patterns of Light'
-            },
-            publicationDate: {
-              type: 'string',
-              format: 'date',
-              example: '2021-08-17'
-            }
+            authorId: bookProperties.authorId,
+            title: bookProperties.title,
+            publicationDate: bookProperties.publicationDate
           }
         },
         Error: {
@@ -110,6 +133,13 @@ const options = {
         }
       },
       parameters: {
+        BookId: {
+          in: 'path',
+          name: 'id',
+          required: true,
+          description: 'The custom book id, such as b1.',
+          schema: { type: 'string' }
+        },
         AuthorId: {
           in: 'path',
           name: 'id',
@@ -130,7 +160,19 @@ const options = {
         AuthorHasBooks: errorResponse('Author is still referenced by one or more books.', {
           hasBooks: { value: { message: 'Author has books' } }
         }),
-        BodyTooLarge: errorResponse('JSON request body exceeds 16 KB.', {
+        BookCreateBadRequest: errorResponse('Invalid body, malformed JSON, duplicate book id, or unknown author.', {
+          ...invalidBodyExamples,
+          duplicateId: { value: { message: 'Book id already exists' } },
+          unknownAuthor: { value: { message: 'Author not found' } }
+        }),
+        BookUpdateBadRequest: errorResponse('Invalid body, malformed JSON, or unknown author.', {
+          ...invalidBodyExamples,
+          unknownAuthor: { value: { message: 'Author not found' } }
+        }),
+        BookNotFound: errorResponse('Book not found.', {
+          notFound: { value: { message: 'Book not found' } }
+        }),
+        BodyTooLarge: errorResponse('JSON request body exceeds 16 KiB (16,384 bytes).', {
           tooLarge: { value: { message: 'Request body too large' } }
         }),
         InternalError: errorResponse('Unexpected server or database error.', {
