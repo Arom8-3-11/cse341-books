@@ -1,0 +1,60 @@
+# Week 02 Reflection
+
+## Links
+
+1. Provide your walk-through video link. This video must demonstrate your API
+   working at Render and follow the script in the assignment.
+
+Video link:
+https://youtu.be/TWVCZQoTXMs 
+
+2. Provide a link to your deployed Render api-docs URL.
+
+Render link:
+https://cse341-books-5ynb.onrender.com/api-docs/
+
+3. Provide links to your Pull Requests (they should be merged at this point).
+
+Books PR:
+https://github.com/Arom8-3-11/cse341-books/pull/12
+
+Authors PR:
+https://github.com/Arom8-3-11/cse341-books/pull/11
+
+4. Provide links to your GitHub Issues (they should be closed at this point).
+
+Books Issue:
+https://github.com/Arom8-3-11/cse341-books/issues/9
+
+Authors Issue:
+https://github.com/Arom8-3-11/cse341-books/issues/10
+
+## Plan vs. Implementation
+
+5. Which part of the work took more or less time than expected? Why?
+
+Answer:
+ Implementing and testing the book and author routes took longer than I 
+ expected because I needed to handle edge cases such as invalid input, 
+ missing records, duplicate IDs, and authors that still have books. Once the 
+ routes were working, documenting them in Swagger and testing them through the 
+ browser took less time than expected.
+
+6. How did Swagger help you in your work this week?
+
+Answer: 
+Swagger showed me each route, its request body, and its documented responses,
+and let me try requests from the browser. I used the deployed documentation to
+test book creation and author routes, including validation, missing records,
+and the response when an author still has books. I could see the actual status
+and response body without setting up a separate API client.
+
+## Week 03 Improvement
+
+7. What is one specific habit or process you will apply next week?
+
+Answer:
+After each pull request is merged, I will check that Render deployed the same
+commit as main and test the changed routes in the deployed Swagger page. When
+I create test records, I will use a unique id and delete the test record when
+I am done.

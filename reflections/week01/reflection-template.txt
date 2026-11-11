@@ -25,7 +25,6 @@ to fix before the deployed service worked.
 4. Include a link to your walk-through video.
    It must include your name, show your web service working at Render,
    explain your Get Single Book controller, and discuss status codes.
-
 Video link:
 https://youtu.be/8NVCXEnxLwY 
 
